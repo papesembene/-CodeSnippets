@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Core\DataBase;
+use App\Seeders\CodeSnippetSeeder;
+
+echo "🚀 Configuration de l'application Code Snippets...\n\n";
+
+try {
+    // Connexion à la base de données
+    echo "📡 Connexion à la base de données...\n";
+    $db = DataBase::getInstance();
+    $connection = $db->getConnection();
+    echo "✅ Connexion réussie!\n\n";
+
+    // Exécution de la migration
+    echo "📋 Exécution de la migration...\n";
+    $migrationSql = file_get_contents(__DIR__ . '/../database/migrations/2025_02_08_000001_create_code_snippets_table.sql');
+    $connection->exec($migrationSql);
+    echo "✅ Table code_snippets créée!\n\n";
+
+    // Exécution du seeder
+    echo "🌱 Ajout des données d'exemple...\n";
+    $seeder = new CodeSnippetSeeder();
+    $seeder->run();
+    echo "\n";
+
+    echo "🎉 Configuration terminée avec succès!\n";
+    echo "🌐 Vous pouvez maintenant lancer l'application avec: composer serve\n";
+
+} catch (Exception $e) {
+    echo "❌ Erreur lors de la configuration: " . $e->getMessage() . "\n";
+    exit(1);
+}

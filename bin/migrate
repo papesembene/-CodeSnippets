@@ -1,0 +1,88 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Script de migration de base de données
+ */
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Charger les variables d'environnement
+require_once __DIR__ . '/../App/config/env.php';
+EnvLoader::load();
+
+use App\Core\DataBase;
+
+echo "🚀 Démarrage des migrations...\n\n";
+
+try {
+    // Connexion à la base de données
+    echo "📡 Connexion à PostgreSQL...\n";
+    $db = DataBase::getInstance();
+    $connection = $db->getConnection();
+    echo "✅ Connexion réussie!\n\n";
+
+    // Créer la table de migrations si elle n'existe pas
+    echo "📋 Vérification de la table des migrations...\n";
+    $migrationTableSql = "
+        CREATE TABLE IF NOT EXISTS migrations (
+            id SERIAL PRIMARY KEY,
+            migration VARCHAR(255) NOT NULL UNIQUE,
+            executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    ";
+    $connection->exec($migrationTableSql);
+    echo "✅ Table migrations OK!\n\n";
+
+    // Lister les migrations déjà exécutées
+    $stmt = $connection->query("SELECT migration FROM migrations ORDER BY executed_at");
+    $executedMigrations = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Scanner le dossier des migrations
+    $migrationsDir = __DIR__ . '/../database/migrations/';
+    $migrationFiles = glob($migrationsDir . '*.sql');
+    sort($migrationFiles);
+
+    $newMigrations = 0;
+
+    foreach ($migrationFiles as $migrationFile) {
+        $migrationName = basename($migrationFile, '.sql');
+        
+        // Vérifier si la migration a déjà été exécutée
+        if (in_array($migrationName, $executedMigrations)) {
+            echo "⏩ Migration déjà exécutée: $migrationName\n";
+            continue;
+        }
+
+        echo "🔄 Exécution de la migration: $migrationName\n";
+        
+        try {
+            // Lire et exécuter le fichier SQL
+            $sql = file_get_contents($migrationFile);
+            $connection->exec($sql);
+            
+            // Enregistrer la migration comme exécutée
+            $stmt = $connection->prepare("INSERT INTO migrations (migration) VALUES (?)");
+            $stmt->execute([$migrationName]);
+            
+            echo "✅ Migration réussie: $migrationName\n";
+            $newMigrations++;
+            
+        } catch (Exception $e) {
+            echo "❌ Erreur dans la migration $migrationName: " . $e->getMessage() . "\n";
+            exit(1);
+        }
+    }
+
+    if ($newMigrations === 0) {
+        echo "\n📢 Aucune nouvelle migration à exécuter.\n";
+    } else {
+        echo "\n🎉 $newMigrations migration(s) exécutée(s) avec succès!\n";
+    }
+
+} catch (Exception $e) {
+    echo "❌ Erreur générale: " . $e->getMessage() . "\n";
+    exit(1);
+}
+
+echo "\n✨ Migrations terminées!\n";

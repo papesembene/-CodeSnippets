@@ -1,0 +1,29 @@
+# Environnement et configuration
+.env
+.env.local
+.env.production
+
+# Dépendances
+vendor/
+node_modules/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cache
+cache/
+tmp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Fichiers de déploiement temporaires
+.railway/

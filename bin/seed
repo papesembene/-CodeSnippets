@@ -1,0 +1,96 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Script de seeding de base de données
+ */
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Charger les variables d'environnement
+require_once __DIR__ . '/../App/config/env.php';
+EnvLoader::load();
+
+use App\Core\DataBase;
+
+echo "🌱 Démarrage du seeding...\n\n";
+
+try {
+    // Connexion à la base de données
+    echo "📡 Connexion à PostgreSQL...\n";
+    $db = DataBase::getInstance();
+    $connection = $db->getConnection();
+    echo "✅ Connexion réussie!\n\n";
+
+    // Créer la table des seeds si elle n'existe pas
+    echo "📋 Vérification de la table des seeds...\n";
+    $seedTableSql = "
+        CREATE TABLE IF NOT EXISTS seeds (
+            id SERIAL PRIMARY KEY,
+            seeder VARCHAR(255) NOT NULL UNIQUE,
+            executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    ";
+    $connection->exec($seedTableSql);
+    echo "✅ Table seeds OK!\n\n";
+
+    // Lister les seeds déjà exécutés
+    $stmt = $connection->query("SELECT seeder FROM seeds ORDER BY executed_at");
+    $executedSeeders = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Scanner le dossier des seeders
+    $seedersDir = __DIR__ . '/../database/seeders/';
+    $seederFiles = glob($seedersDir . '*.php');
+    sort($seederFiles);
+
+    $newSeeders = 0;
+
+    foreach ($seederFiles as $seederFile) {
+        $seederName = basename($seederFile, '.php');
+        
+        // Vérifier si le seeder a déjà été exécuté
+        if (in_array($seederName, $executedSeeders)) {
+            echo "⏩ Seeder déjà exécuté: $seederName\n";
+            continue;
+        }
+
+        echo "🔄 Exécution du seeder: $seederName\n";
+        
+        try {
+            // Inclure et exécuter le seeder
+            require_once $seederFile;
+            
+            // Créer une instance de la classe seeder
+            $className = "App\\Seeders\\$seederName";
+            if (class_exists($className)) {
+                $seeder = new $className();
+                $seeder->run();
+                
+                // Enregistrer le seeder comme exécuté
+                $stmt = $connection->prepare("INSERT INTO seeds (seeder) VALUES (?)");
+                $stmt->execute([$seederName]);
+                
+                echo "✅ Seeder réussi: $seederName\n";
+                $newSeeders++;
+            } else {
+                echo "⚠️  Classe $className non trouvée dans $seederFile\n";
+            }
+            
+        } catch (Exception $e) {
+            echo "❌ Erreur dans le seeder $seederName: " . $e->getMessage() . "\n";
+            exit(1);
+        }
+    }
+
+    if ($newSeeders === 0) {
+        echo "\n📢 Aucun nouveau seeder à exécuter.\n";
+    } else {
+        echo "\n🎉 $newSeeders seeder(s) exécuté(s) avec succès!\n";
+    }
+
+} catch (Exception $e) {
+    echo "❌ Erreur générale: " . $e->getMessage() . "\n";
+    exit(1);
+}
+
+echo "\n✨ Seeding terminé!\n";

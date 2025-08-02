@@ -1,0 +1,19 @@
+core:
+  - App\Core\DataBase
+  - App\Core\Session
+  - App\Core\Validator
+
+controllers:
+  - App\Controllers\CodeSnippetController
+
+entities:
+  - App\Entities\CodeSnippet
+
+repositories:
+  - App\Repositories\CodeSnippetRepository
+
+services:
+  - App\Services\CodeSnippetService
+
+interfaces:
+  - App\Core\Interfaces\CodeSnippetRepositoryInterface
