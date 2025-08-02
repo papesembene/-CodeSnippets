@@ -26,9 +26,7 @@ class DataBase extends Singleton
         
         // Fonction pour lire une variable avec fallback système
         $getVar = function($key) {
-            $value = \EnvLoader::get($key) ?: ($_ENV[$key] ?? ($_SERVER[$key] ?? getenv($key)));
-            error_log("Railway Debug: $key = " . ($value ?: 'VIDE'));
-            return $value;
+            return \EnvLoader::get($key) ?: ($_ENV[$key] ?? ($_SERVER[$key] ?? getenv($key)));
         };
         
         // Priorité 1: Variables Railway PostgreSQL
