@@ -155,15 +155,19 @@ class DataBase extends Singleton
         $sql = "
         CREATE TABLE IF NOT EXISTS code_snippets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            language TEXT NOT NULL,
-            code TEXT NOT NULL,
+            title VARCHAR(255) NOT NULL,
             description TEXT,
+            category VARCHAR(50) NOT NULL DEFAULT 'PHP',
+            code_content TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )";
         
         $this->connection->exec($sql);
+        
+        // Créer des index pour performance
+        $this->connection->exec("CREATE INDEX IF NOT EXISTS idx_category ON code_snippets(category)");
+        $this->connection->exec("CREATE INDEX IF NOT EXISTS idx_created_at ON code_snippets(created_at DESC)");
     }
 
     /**
