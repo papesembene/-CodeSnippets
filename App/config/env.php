@@ -10,7 +10,7 @@ class EnvLoader
     private static bool $loaded = false;
 
     /**
-     * Charge les variables d'environnement depuis le fichier .env
+     * Charge les variables d'environnement depuis le fichier .env ou les variables système
      */
     public static function load(string $envFile = null): void
     {
@@ -20,8 +20,15 @@ class EnvLoader
 
         $envFile = $envFile ?: __DIR__ . '/../../.env';
 
+        // Si le fichier .env n'existe pas (ex: sur Railway), on utilise les variables système
         if (!file_exists($envFile)) {
-            throw new Exception("Le fichier d'environnement '$envFile' n'existe pas.");
+            // En production (Railway), les variables sont déjà dans $_ENV
+            // On copie juste les variables système existantes
+            foreach ($_ENV as $key => $value) {
+                self::$env[$key] = $value;
+            }
+            self::$loaded = true;
+            return;
         }
 
         $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

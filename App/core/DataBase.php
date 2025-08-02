@@ -24,12 +24,25 @@ class DataBase extends Singleton
         // Charger les variables d'environnement
         \EnvLoader::load();
         
-        // Configuration PostgreSQL depuis .env
-        $this->host = \EnvLoader::get('DB_HOST', 'localhost');
-        $this->port = \EnvLoader::get('DB_PORT', '5432');
-        $this->database = \EnvLoader::get('DB_DATABASE', 'code_snippets_db');
-        $this->username = \EnvLoader::get('DB_USERNAME', 'postgres');
-        $this->password = \EnvLoader::get('DB_PASSWORD', '');
+        // Vérifier si on a une DATABASE_URL (format Railway/Heroku)
+        $databaseUrl = \EnvLoader::get('DATABASE_URL');
+        
+        if ($databaseUrl) {
+            // Parser l'URL de la base de données
+            $parsedUrl = parse_url($databaseUrl);
+            $this->host = $parsedUrl['host'] ?? 'localhost';
+            $this->port = $parsedUrl['port'] ?? '5432';
+            $this->database = ltrim($parsedUrl['path'] ?? '', '/');
+            $this->username = $parsedUrl['user'] ?? 'postgres';
+            $this->password = $parsedUrl['pass'] ?? '';
+        } else {
+            // Configuration PostgreSQL depuis variables individuelles
+            $this->host = \EnvLoader::get('DB_HOST', 'localhost');
+            $this->port = \EnvLoader::get('DB_PORT', '5432');
+            $this->database = \EnvLoader::get('DB_DATABASE', 'code_snippets_db');
+            $this->username = \EnvLoader::get('DB_USERNAME', 'postgres');
+            $this->password = \EnvLoader::get('DB_PASSWORD', '');
+        }
     }
 
     /**
