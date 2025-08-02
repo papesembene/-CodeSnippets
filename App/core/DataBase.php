@@ -93,20 +93,32 @@ class DataBase extends Singleton
      */
     private function connect(): void
     {
-        try {
-            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->database}";
-            
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false
-            ];
+        $maxRetries = 5;
+        $retryDelay = 2; // secondes
+        
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            try {
+                $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->database}";
+                
+                $options = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                    PDO::ATTR_TIMEOUT => 10
+                ];
 
-            $this->connection = new PDO($dsn, $this->username, $this->password, $options);
-            
-        } catch (PDOException $e) {
-            throw new \Exception("Erreur de connexion PostgreSQL Railway: " . $e->getMessage() . 
-                " | Host: {$this->host} | Port: {$this->port} | DB: {$this->database} | User: {$this->username}");
+                $this->connection = new PDO($dsn, $this->username, $this->password, $options);
+                return; // Connexion réussie
+                
+            } catch (PDOException $e) {
+                if ($attempt === $maxRetries) {
+                    throw new \Exception("Erreur de connexion PostgreSQL Railway après $maxRetries tentatives: " . $e->getMessage() . 
+                        " | Host: {$this->host} | Port: {$this->port} | DB: {$this->database} | User: {$this->username}");
+                }
+                
+                // Attendre avant la prochaine tentative
+                sleep($retryDelay);
+            }
         }
     }
 
