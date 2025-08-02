@@ -110,10 +110,8 @@ class DataBase extends Singleton
                 
             } catch (PDOException $e) {
                 if ($attempt === $maxRetries) {
-                    // Fallback vers SQLite en production si PostgreSQL indisponible
-                    error_log("PostgreSQL indisponible, fallback vers SQLite");
-                    $this->connectSQLiteFallback();
-                    return;
+                    throw new \Exception("PostgreSQL connexion impossible après $maxRetries tentatives: " . $e->getMessage() . 
+                        " | Host: {$this->host} | Port: {$this->port} | DB: {$this->database} | User: {$this->username}");
                 }
                 
                 // Attendre avant la prochaine tentative
