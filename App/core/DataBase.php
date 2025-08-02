@@ -91,8 +91,8 @@ class DataBase extends Singleton
      */
     private function connect(): void
     {
-        $maxRetries = 1;
-        $retryDelay = 1; // secondes
+        $maxRetries = 3;
+        $retryDelay = 2; // secondes
         
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
