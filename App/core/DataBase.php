@@ -26,20 +26,20 @@ class DataBase extends Singleton
         
         // Priorité 1: Variables Railway PostgreSQL
         $pgHost = \EnvLoader::get('PGHOST');
-        $pgUser = \EnvLoader::get('PGUSER');
+        $pgUser = \EnvLoader::get('PGUSER'); 
         $pgPassword = \EnvLoader::get('PGPASSWORD');
         $pgDatabase = \EnvLoader::get('PGDATABASE');
         $pgPort = \EnvLoader::get('PGPORT');
         
-        // Priorité 2: Variables Railway alternatives
-        if (!$pgHost || str_contains($pgHost, '${{')) {
-            $pgHost = \EnvLoader::get('RAILWAY_PRIVATE_DOMAIN'); // Utiliser directement le domaine Railway
+        // Priorité 2: Variables Railway alternatives (POSTGRES_*)
+        if (empty($pgHost)) {
+            $pgHost = \EnvLoader::get('RAILWAY_PRIVATE_DOMAIN');
             $pgUser = \EnvLoader::get('POSTGRES_USER');
             $pgPassword = \EnvLoader::get('POSTGRES_PASSWORD');
             $pgDatabase = \EnvLoader::get('POSTGRES_DB');
         }
         
-        if ($pgHost && $pgUser && $pgPassword && $pgDatabase) {
+        if (!empty($pgHost) && !empty($pgUser) && !empty($pgPassword) && !empty($pgDatabase)) {
             // Utiliser les variables PostgreSQL Railway
             $this->host = $pgHost;
             $this->port = $pgPort ?: '5432';
