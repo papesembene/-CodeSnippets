@@ -112,8 +112,10 @@ class DataBase extends Singleton
                 
             } catch (PDOException $e) {
                 if ($attempt === $maxRetries) {
-                    throw new \Exception("Erreur de connexion PostgreSQL Railway après $maxRetries tentatives: " . $e->getMessage() . 
-                        " | Host: {$this->host} | Port: {$this->port} | DB: {$this->database} | User: {$this->username}");
+                    // Fallback vers SQLite en production si PostgreSQL indisponible
+                    error_log("PostgreSQL indisponible, fallback vers SQLite");
+                    $this->connectSQLiteFallback();
+                    return;
                 }
                 
                 // Attendre avant la prochaine tentative
@@ -122,6 +124,49 @@ class DataBase extends Singleton
         }
     }
 
+    /**
+     * Connexion SQLite de fallback
+     */
+    private function connectSQLiteFallback(): void
+    {
+        try {
+            $dbPath = '/tmp/codesnippets.db';
+            $dsn = "sqlite:$dbPath";
+            
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false
+            ];
+
+            $this->connection = new PDO($dsn, null, null, $options);
+            
+            // Créer les tables si elles n'existent pas
+            $this->createSQLiteTables();
+            
+        } catch (PDOException $e) {
+            throw new \Exception("Erreur fallback SQLite: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Créer les tables SQLite de base
+     */
+    private function createSQLiteTables(): void
+    {
+        $sql = "
+        CREATE TABLE IF NOT EXISTS code_snippets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            language TEXT NOT NULL,
+            code TEXT NOT NULL,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )";
+        
+        $this->connection->exec($sql);
+    }
 
     /**
      * Teste la connexion à la base de données
