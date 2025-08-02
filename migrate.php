@@ -24,24 +24,40 @@ try {
     
     echo "✅ Connexion à la base de données établie\n";
     
-    // Lire et exécuter les migrations SQL
-    $migrationFiles = [
-        __DIR__ . '/database/migrations/2025_02_08_000001_create_code_snippets_table.sql',
-        __DIR__ . '/database/migrations/2025_02_08_000002_add_indexes_to_code_snippets.sql'
-    ];
+    // Créer les tables directement (compatible PostgreSQL)
+    echo "📝 Création de la table code_snippets...\n";
     
-    foreach ($migrationFiles as $file) {
-        if (file_exists($file)) {
-            echo "📝 Exécution de " . basename($file) . "...\n";
-            $sql = file_get_contents($file);
-            
-            // Exécuter la migration
-            $pdo->exec($sql);
-            echo "✅ Migration " . basename($file) . " terminée\n";
-        } else {
-            echo "⚠️ Fichier de migration non trouvé: " . basename($file) . "\n";
-        }
-    }
+    $sql = "
+    CREATE TABLE IF NOT EXISTS code_snippets (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        code_content TEXT NOT NULL,
+        category VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
+    CREATE INDEX IF NOT EXISTS idx_code_snippets_category ON code_snippets(category);
+    CREATE INDEX IF NOT EXISTS idx_code_snippets_created_at ON code_snippets(created_at);
+    ";
+    
+    $pdo->exec($sql);
+    echo "✅ Table code_snippets créée avec succès\n";
+    
+    // Ajouter quelques données de test
+    echo "📝 Ajout de données de test...\n";
+    $insertSql = "
+    INSERT INTO code_snippets (title, description, code_content, category) 
+    VALUES 
+        ('Hello World PHP', 'Un simple Hello World en PHP', '<?php\necho \"Hello, World!\";', 'PHP'),
+        ('Button HTML', 'Un bouton HTML stylé', '<button class=\"btn btn-primary\">Cliquez ici</button>', 'HTML'),
+        ('CSS Flexbox', 'Centrer un élément avec flexbox', '.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}', 'CSS')
+    ON CONFLICT DO NOTHING;
+    ";
+    
+    $pdo->exec($insertSql);
+    echo "✅ Données de test ajoutées\n";
     
     echo "🎉 Toutes les migrations ont été exécutées avec succès!\n";
     
