@@ -24,19 +24,24 @@ class DataBase extends Singleton
         // Charger les variables d'environnement
         \EnvLoader::load();
         
+        // Fonction pour lire une variable avec fallback système
+        $getVar = function($key) {
+            return \EnvLoader::get($key) ?: ($_ENV[$key] ?? ($_SERVER[$key] ?? getenv($key)));
+        };
+        
         // Priorité 1: Variables Railway PostgreSQL
-        $pgHost = \EnvLoader::get('PGHOST');
-        $pgUser = \EnvLoader::get('PGUSER'); 
-        $pgPassword = \EnvLoader::get('PGPASSWORD');
-        $pgDatabase = \EnvLoader::get('PGDATABASE');
-        $pgPort = \EnvLoader::get('PGPORT');
+        $pgHost = $getVar('PGHOST');
+        $pgUser = $getVar('PGUSER'); 
+        $pgPassword = $getVar('PGPASSWORD');
+        $pgDatabase = $getVar('PGDATABASE');
+        $pgPort = $getVar('PGPORT');
         
         // Priorité 2: Variables Railway alternatives (POSTGRES_*)
         if (empty($pgHost)) {
-            $pgHost = \EnvLoader::get('RAILWAY_PRIVATE_DOMAIN');
-            $pgUser = \EnvLoader::get('POSTGRES_USER');
-            $pgPassword = \EnvLoader::get('POSTGRES_PASSWORD');
-            $pgDatabase = \EnvLoader::get('POSTGRES_DB');
+            $pgHost = $getVar('RAILWAY_PRIVATE_DOMAIN');
+            $pgUser = $getVar('POSTGRES_USER');
+            $pgPassword = $getVar('POSTGRES_PASSWORD');
+            $pgDatabase = $getVar('POSTGRES_DB');
         }
         
         if (!empty($pgHost) && !empty($pgUser) && !empty($pgPassword) && !empty($pgDatabase)) {

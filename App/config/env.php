@@ -76,13 +76,18 @@ class EnvLoader
     {
         self::load();
 
-        // Priorité: $_ENV puis $_SERVER puis notre cache
+        // Priorité: $_ENV puis $_SERVER puis getenv() puis notre cache
         if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
             return $_ENV[$key];
         }
 
         if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') {
             return $_SERVER[$key];
+        }
+
+        $envValue = getenv($key);
+        if ($envValue !== false && $envValue !== '') {
+            return $envValue;
         }
 
         if (isset(self::$env[$key]) && self::$env[$key] !== '') {
