@@ -87,12 +87,6 @@ class DataBase extends Singleton
     private function connect(): void
     {
         try {
-            // Mode développement : si pas de config DB complète, utiliser SQLite temporaire
-            if ($this->host === 'localhost' && empty($this->password)) {
-                $this->connectSqliteTemporary();
-                return;
-            }
-            
             $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->database}";
             
             $options = [
@@ -104,60 +98,11 @@ class DataBase extends Singleton
             $this->connection = new PDO($dsn, $this->username, $this->password, $options);
             
         } catch (PDOException $e) {
-            // En cas d'échec, essayer SQLite temporaire
-            $this->connectSqliteTemporary();
+            throw new \Exception("Erreur de connexion PostgreSQL Railway: " . $e->getMessage() . 
+                " | Host: {$this->host} | Port: {$this->port} | DB: {$this->database} | User: {$this->username}");
         }
     }
-    
-    /**
-     * Connexion SQLite temporaire pour le développement
-     */
-    private function connectSqliteTemporary(): void
-    {
-        try {
-            $sqliteFile = '/tmp/codesnippets_temp.sqlite';
-            $dsn = "sqlite:$sqliteFile";
-            
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false
-            ];
 
-            $this->connection = new PDO($dsn, null, null, $options);
-            
-            // Créer la table des snippets si elle n'existe pas
-            $this->createSqliteSchema();
-            
-        } catch (PDOException $e) {
-            throw new \Exception("Impossible de créer une base SQLite temporaire: " . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Crée le schéma SQLite temporaire
-     */
-    private function createSqliteSchema(): void
-    {
-        $sql = "
-        CREATE TABLE IF NOT EXISTS code_snippets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title VARCHAR(255) NOT NULL,
-            description TEXT,
-            code_content TEXT NOT NULL,
-            category VARCHAR(100) NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-        
-        INSERT OR IGNORE INTO code_snippets (id, title, description, code_content, category) VALUES 
-        (1, 'Hello World PHP', 'Un simple Hello World en PHP', '<?php\necho \"Hello, World!\";', 'PHP'),
-        (2, 'Button HTML', 'Un bouton HTML stylé', '<button class=\"btn btn-primary\">Cliquez ici</button>', 'HTML'),
-        (3, 'CSS Flexbox', 'Centre un élément avec flexbox', '.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}', 'CSS');
-        ";
-        
-        $this->connection->exec($sql);
-    }
 
     /**
      * Teste la connexion à la base de données
