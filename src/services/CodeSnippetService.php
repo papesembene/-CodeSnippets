@@ -59,6 +59,6 @@ class CodeSnippetService
 
     public function getAvailableCategories(): array
     {
-        return ['PHP', 'HTML', 'CSS'];
+        return ['PHP', 'HTML', 'CSS','JavaScript'];
     }
 }
