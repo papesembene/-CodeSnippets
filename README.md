@@ -1,100 +1,80 @@
-# 📚 CodeSnippets - Bibliothèque de Codes
+# 📚 CodeSnippets
 
-Une application web moderne pour gérer et partager des extraits de code. Construite avec un framework PHP personnalisé.
-
-![Screenshot](https://via.placeholder.com/800x400?text=CodeSnippets+App)
-
-## ✨ Fonctionnalités
-
-- 📝 **Gestion de snippets** - Créer, modifier, supprimer des extraits de code
-- 🔍 **Recherche avancée** - Par titre, description ou contenu
-- 🏷️ **Catégorisation** - PHP, HTML, CSS, JavaScript, etc.
-- 📋 **Copie en un clic** - Boutons de copie avec feedback visuel
-- 🖥️ **Mode plein écran** - Visualisation optimisée du code
-- 📱 **Design responsive** - Interface moderne avec Tailwind CSS
-- 🔄 **Pagination** - Navigation fluide des résultats
+Application web pour sauvegarder et partager des extraits de code.
 
 ## 🚀 Démo Live
 
-[**Voir l'application en action →**](https://your-app.railway.app)
+[**Voir l'application →**](https://web-production-9ee8e.up.railway.app/)
+
+## ✨ Ce que ça fait
+
+- ➕ **Ajouter** des extraits de code (PHP, HTML, CSS, JS...)
+- 📋 **Copier** le code en un clic  
+- 🔍 **Rechercher** dans tous vos codes
+- 🏷️ **Filtrer** par catégorie
+- 📱 **Responsive** - fonctionne sur mobile
 
 ## 🛠️ Technologies
 
-- **Backend**: PHP 8.1+, Framework personnalisé
-- **Frontend**: Tailwind CSS, JavaScript (ES6+)
-- **Base de données**: PostgreSQL/MySQL
-- **Déploiement**: Railway
-- **Coloration syntaxique**: Prism.js
+- **PHP 8.1** - Backend
+- **PostgreSQL** - Base de données  
+- **Tailwind CSS** - Interface moderne
+- **Railway** - Hébergement gratuit
 
-## 📦 Installation Locale
+## 📦 Installation
 
 ```bash
-# Cloner le repository
-git clone https://github.com/yourusername/codesnippets.git
-cd codesnippets
+# Cloner
+git clone https://github.com/papesembene/-CodeSnippets.git
+cd CodeSnippets
 
 # Installer les dépendances
 composer install
 
-# Configurer l'environnement
+# Configurer la base de données
 cp .env.example .env
-# Éditer .env avec vos paramètres de DB
+# Éditer .env avec vos paramètres
 
-# Migrations
+# Lancer les migrations
 php bin/migrate
 
 # Démarrer le serveur
 composer serve
 ```
 
-## 🌐 Déploiement sur Railway
+L'app sera accessible sur http://localhost:8000
+
+## 🌐 Déployer sur Railway
 
 1. **Créer un compte** sur [Railway](https://railway.app)
-2. **Connecter GitHub** et sélectionner ce repository
-3. **Ajouter PostgreSQL** dans Railway
-4. **Variables d'environnement** seront configurées automatiquement
-5. **Déploiement automatique** à chaque push
+2. **Connecter ce repository GitHub**
+3. **Ajouter PostgreSQL** (+ Add Service → PostgreSQL)
+4. **Déploiement automatique** ✅
 
-## 📁 Structure du Projet
+## 📁 Structure
 
 ```
-├── App/                # Framework personnalisé
-├── src/                # Code de l'application
-│   ├── controllers/    # Contrôleurs
-│   ├── entities/       # Entités/Modèles
-│   └── repositories/   # Accès aux données
-├── templates/          # Vues et layouts
-├── public/             # Assets (CSS, JS, images)
-├── database/           # Migrations et seeders
-└── route/              # Configuration des routes
+├── src/           # Contrôleurs et logique métier
+├── templates/     # Vues HTML
+├── public/        # CSS, JS et point d'entrée
+├── database/      # Migrations et données
+└── App/           # Framework PHP personnalisé
 ```
 
-## 🎨 Screenshots
-
-| Page d'accueil | Détail du snippet |
-|----------------|-------------------|
-| ![Home](https://via.placeholder.com/400x250) | ![Detail](https://via.placeholder.com/400x250) |
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à :
+## 🤝 Contribuer
 
 1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amazing-feature`)
-3. Commit vos changements (`git commit -m 'Add amazing feature'`)
-4. Push la branche (`git push origin feature/amazing-feature`)
+2. Créer une branche : `git checkout -b ma-feature`
+3. Commit : `git commit -m "Ajouter ma feature"`
+4. Push : `git push origin ma-feature`
 5. Ouvrir une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ## 👨‍💻 Auteur
 
-**MR SEM'S**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: sembenpape4@gmail.com
+**MR SEM'S**  
+📧 sembenpape4@gmail.com  
+🐙 [@papesembene](https://github.com/papesembene)
 
 ---
 
-⭐ **Star ce repo** si vous l'avez trouvé utile !
+⭐ **N'hésitez pas à star le repo si ça vous plaît !**
