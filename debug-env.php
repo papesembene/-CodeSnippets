@@ -20,7 +20,7 @@ foreach ($_ENV as $key => $value) {
 }
 
 echo "\n📊 Variables importantes pour la DB :\n";
-$dbVars = ['DATABASE_URL', 'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS', 'PGHOST', 'PGPORT', 'PGDATABASE', 'PGUSER', 'PGPASSWORD'];
+$dbVars = ['DATABASE_URL', 'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS', 'PGHOST', 'PGPORT', 'PGDATABASE', 'PGUSER', 'PGPASSWORD', 'POSTGRES_HOST', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB', 'RAILWAY_PRIVATE_DOMAIN', 'RAILWAY_TCP_PROXY_DOMAIN'];
 
 foreach ($dbVars as $var) {
     $value = $_ENV[$var] ?? 'NON DÉFINIE';
@@ -42,6 +42,31 @@ if (isset($_ENV['DATABASE_URL'])) {
     echo "PASS: " . (isset($parsed['pass']) ? '[MASQUÉ - ' . strlen($parsed['pass']) . ' caractères]' : 'NON TROUVÉ') . "\n";
 } else {
     echo "❌ DATABASE_URL non trouvée !\n";
+}
+
+echo "\n🔧 Test de résolution des variables Railway :\n";
+$railwayDomain = $_ENV['RAILWAY_PRIVATE_DOMAIN'] ?? 'NON TROUVÉ';
+$postgresUser = $_ENV['POSTGRES_USER'] ?? 'NON TROUVÉ';
+$postgresPassword = $_ENV['POSTGRES_PASSWORD'] ?? 'NON TROUVÉ';
+$postgresDb = $_ENV['POSTGRES_DB'] ?? 'NON TROUVÉ';
+
+echo "RAILWAY_PRIVATE_DOMAIN: $railwayDomain\n";
+echo "POSTGRES_USER: $postgresUser\n";
+echo "POSTGRES_PASSWORD: " . (($postgresPassword !== 'NON TROUVÉ') ? '[MASQUÉ]' : 'NON TROUVÉ') . "\n";
+echo "POSTGRES_DB: $postgresDb\n";
+
+if ($railwayDomain !== 'NON TROUVÉ' && $postgresUser !== 'NON TROUVÉ' && $postgresPassword !== 'NON TROUVÉ' && $postgresDb !== 'NON TROUVÉ') {
+    echo "\n🎯 Configuration PostgreSQL construite :\n";
+    echo "HOST: $railwayDomain\n";
+    echo "PORT: 5432\n";
+    echo "DATABASE: $postgresDb\n";
+    echo "USER: $postgresUser\n";
+    echo "PASSWORD: [MASQUÉ]\n";
+    
+    $constructedUrl = "postgresql://$postgresUser:[MASQUÉ]@$railwayDomain:5432/$postgresDb";
+    echo "URL CONSTRUITE: $constructedUrl\n";
+} else {
+    echo "❌ Variables manquantes pour construire la config DB\n";
 }
 
 echo "\n✅ Debug terminé.\n";
