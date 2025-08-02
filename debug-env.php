@@ -69,4 +69,4 @@ if ($railwayDomain !== 'NON TROUVÉ' && $postgresUser !== 'NON TROUVÉ' && $post
     echo "❌ Variables manquantes pour construire la config DB\n";
 }
 
-echo "\n✅ Debug terminé.\n";
+echo "\n✅ Debug terminé. (v2.0)\n";
