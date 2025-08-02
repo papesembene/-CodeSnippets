@@ -4,6 +4,16 @@
  * Script de debug pour voir les variables d'environnement Railway
  */
 
+// Charger les variables .env si elles existent
+if (file_exists(__DIR__ . '/.env')) {
+    $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        list($name, $value) = explode('=', $line, 2);
+        $_ENV[trim($name)] = trim($value);
+    }
+}
+
 echo "🔍 DEBUG - Variables d'environnement Railway\n";
 echo "==========================================\n\n";
 
